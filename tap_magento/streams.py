@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import string
+from threading import ThreadError
 from typing import Any, Dict, Optional, Union, List, Iterable
 
 from singer_sdk import typing as th  # JSON Schema typing helpers
@@ -379,6 +380,298 @@ class OrdersStream(magentoStream):
             th.Property("prefix", th.StringType),
             th.Property("region", th.StringType),
             th.Property("region_code", th.StringType),
-            th.Property("region_id", th.IntegerType
+            th.Property("region_id", th.IntegerType),
+            th.Property("street", th.ArrayType(th.StringType)),
+            th.Property("suffix", th.StringType),
+            th.Property("telephone", th.StringType),
+            th.Property("vat_id", th.StringType),
+            th.Property("vat_is_valid", th.IntegerType),
+            th.Property("vat_request_date", th.StringType),
+            th.Property("vat_request_id", th.StringType),
+            th.Property("vat_request_success", th.IntegerType),
+            th.Property("extension_attributes", th.ObjectType(
+                th.Property("vertex_vat_country_code", th.StringType)
+            )),
+            )
+        ),
+        th.Property("payment", th.ObjectType(
+            th.Property("account_status", th.StringType),
+            th.Property("additional_data", th.StringType),
+            th.Property("additional_information", th.ArrayType(th.StringType)),
+            th.Property("address_status", th.StringType),
+            th.Property("amount_authorized", th.IntegerType),
+            th.Property("amount_canceled", th.IntegerType),
+            th.Property("amount_ordered", th.IntegerType),
+            th.Property("amount_paid", th.IntegerType),
+            th.Property("amount_refunded", th.IntegerType),
+            th.Property("anet_trans_method", th.StringType),
+            th.Property("base_amount_authorized", th.IntegerType),
+            th.Property("base_amount_canceled", th.IntegerType),
+            th.Property("base_amount_ordered", th.IntegerType),
+            th.Property("base_amount_paid", th.IntegerType),
+            th.Property("base_amount_paid_online", th.IntegerType),
+            th.Property("base_amount_refunded", th.IntegerType),
+            th.Property("base_amount_refunded_online", th.IntegerType),
+            th.Property("base_shipping_amount", th.IntegerType),
+            th.Property("base_shipping_captured", th.IntegerType),
+            th.Property("base_shipping_refunded", th.IntegerType),
+            th.Property("cc_approval", th.StringType),
+            th.Property("cc_avs_status", th.StringType),
+            th.Property("cc_cid_status", th.StringType),
+            th.Property("cc_debug_request_body", th.StringType),
+            th.Property("cc_debug_response_body", th.StringType),
+            th.Property("cc_debug_response_serialized", th.StringType),
+            th.Property("cc_exp_month", th.StringType),
+            th.Property("cc_exp_year", th.StringType),
+            th.Property("cc_last4", th.StringType),
+            th.Property("cc_number_enc", th.StringType),
+            th.Property("cc_owner", th.StringType),
+            th.Property("cc_secure_verify", th.StringType),
+            th.Property("cc_ss_issue", th.StringType),
+            th.Property("cc_ss_start_month", th.StringType),
+            th.Property("cc_ss_start_year", th.StringType),
+            th.Property("cc_status", th.StringType),
+            th.Property("cc_status_description", th.StringType),
+            th.Property("cc_trans_id", th.StringType),
+            th.Property("cc_type", th.StringType),
+            th.Property("echeck_account_name", th.StringType),
+            th.Property("echeck_account_type", th.StringType),
+            th.Property("echeck_bank_name", th.StringType),
+            th.Property("echeck_routing_number", th.StringType),
+            th.Property("echeck_type", th.StringType),
+            th.Property("entity_id", th.IntegerType),
+            th.Property("last_trans_id", th.StringType),
+            th.Property("method", th.StringType),
+            th.Property("parent_id", th.IntegerType),
+            th.Property("po_number", th.StringType),
+            th.Property("protection_eligibility", th.StringType),
+            th.Property("quote_payment_id", th.IntegerType),
+            th.Property("shipping_amount", th.IntegerType),
+            th.Property("shipping_captured", th.IntegerType),
+            th.Property("shipping_refunded", th.IntegerType),
+            th.Property("extension_attributes", th.ObjectType(
+                th.Property("notification_message", th.StringType),
+                th.Property("vault_payment_token", th.ObjectType(
+                    th.Property("entity_id", th.IntegerType),
+                    th.Property("customer_id", th.IntegerType),
+                    th.Property("public_hash", th.StringType),
+                    th.Property("payment_method_code", th.StringType),
+                    th.Property("type", th.StringType),
+                    th.Property("created_at", th.StringType),
+                    th.Property("expires_at", th.StringType),
+                    th.Property("gateway_token", th.StringType),
+                    th.Property("token_details", th.StringType),
+                    th.Property("is_active", th.BooleanType),
+                    th.Property("is_visible", th.BooleanType),
+                ))
+            ))
+        )),
+        th.Property("status_histories", th.ArrayType(
+            th.ObjectType(
+                th.Property("comment", th.StringType),
+                th.Property("created_at", th.StringType),
+                th.Property("entity_id", th.IntegerType),
+                th.Property("entity_name", th.StringType),
+                th.Property("is_customer_notified", th.IntegerType),
+                th.Property("is_visible_on_front", th.IntegerType),
+                th.Property("parent_id", th.IntegerType),
+                th.Property("status", th.StringType),
+                th.Property("extension_attributes", th.ObjectType),
+
+            )
+        )),
+        th.Property("extension_attributes", th.ObjectType(
+            th.Property("shipping_assignments", th.ArrayType(
+                th.ObjectType(
+                    th.Property("shipping", th.ObjectType(
+                        th.Property("address", th.ObjectType(
+                            th.Property("address_type", th.StringType),
+                            th.Property("city", th.StringType),
+                            th.Property("company", th.StringType),
+                            th.Property("country_id", th.StringType),
+                            th.Property("customer_address_id", th.StringType),
+                            th.Property("customer_id", th.StringType),
+                            th.Property("email", th.StringType),
+                            th.Property("entity_id", th.StringType),
+                            th.Property("fax", th.StringType),
+                            th.Property("firstname", th.StringType),
+                            th.Property("lastname", th.StringType),
+                            th.Property("middlename", th.StringType),
+                            th.Property("parent_id", th.StringType),
+                            th.Property("postcode", th.StringType),
+                            th.Property("prefix", th.StringType),
+                            th.Property("region", th.StringType),
+                            th.Property("region_code", th.StringType),
+                            th.Property("region_id", th.StringType),
+                            th.Property("street", th.ArrayType(th.StringType)),
+                            th.Property("suffix", th.StringType),
+                            th.Property("telephone", th.StringType),
+                            th.Property("vat_id", th.StringType),
+                            th.Property("vat_is_valid", th.StringType),
+                            th.Property("vat_request_date", th.StringType),
+                            th.Property("vat_request_id", th.StringType),
+                            th.Property("vat_request_success", th.StringType),
+                            th.Property("extension_attributes", th.StringType),
+                        )),
+                        th.Property("method", th.StringType),
+                        th.Property("total", th.ObjectType(
+                            th.Property("base_shipping_amount", th.StringType),
+                            th.Property("base_shipping_canceled", th.StringType),
+                            th.Property("base_shipping_discount_amount", th.StringType),
+                            th.Property("base_shipping_discount_tax_compensation_amnt", th.StringType),
+                            th.Property("base_shipping_incl_tax", th.StringType),
+                            th.Property("base_shipping_invoiced", th.StringType),
+                            th.Property("base_shipping_refunded", th.StringType),
+                            th.Property("base_shipping_tax_amount", th.StringType),
+                            th.Property("base_shipping_tax_refunded", th.StringType),
+                            th.Property("shipping_amount", th.StringType),
+                            th.Property("shipping_canceled", th.StringType),
+                            th.Property("shipping_discount_amount", th.StringType),
+                            th.Property("shipping_discount_tax_compensation_amount", th.StringType),
+                            th.Property("shipping_incl_tax", th.StringType),
+                            th.Property("shipping_invoiced", th.StringType),
+                            th.Property("shipping_refunded", th.StringType),
+                            th.Property("shipping_tax_amount", th.StringType),
+                            th.Property("shipping_tax_refunded", th.StringType),
+                            th.Property("extension_attributes", th.StringType)
+                        )),
+                        th.Property("extension_attributes", th.ObjectType())
+                    ))
+                )
+            )),
+            th.Property("payment_additional_info", th.ArrayType(
+                th.ObjectType(
+                    th.Property("key", th.StringType),
+                    th.Property("value", th.StringType),
+                )
+            )),
+            th.Property("company_order_attributes", th.ObjectType(
+                th.Property("order_id", th.IntegerType),
+                th.Property("company_id", th.IntegerType),
+                th.Property("company_name", th.StringType),
+                th.Property("extension_attributes", th.ObjectType()),
+            )),
+            th.Property("applied_taxes", th.ArrayType(
+                th.ObjectType(
+                    th.Property("code", th.StringType),
+                    th.Property("title", th.StringType),
+                    th.Property("percent", th.IntegerType),
+                    th.Property("amount", th.IntegerType),
+                    th.Property("base_amount", th.IntegerType),
+                    th.Property("extension_attributes", th.ObjectType(
+                        th.Property("rates", th.ArrayType(th.StringType))
+                    ))
+                )
+            )),
+            th.Property("item_applied_taxes", th.ArrayType(
+                th.ObjectType(
+                    th.Property("type", th.StringType),
+                    th.Property("item_id", th.IntegerType),
+                    th.Property("associated_item_id", th.IntegerType),
+                    th.Property("applied_taxes", th.ArrayType(
+                        th.ObjectType(
+                            th.Property("code", th.StringType),
+                            th.Property("title", th.StringType),
+                            th.Property("percent", th.StringType),
+                            th.Property("amount", th.StringType),
+                            th.Property("base_amount", th.StringType),
+                            th.Property("extension_attributes", th.StringType)
+                        )
+                    )),
+                    th.Property("extension_attributes", th.ObjectType)
+                )
+            )),
+            th.Property("converting_from_quote", th.BooleanType),
+            th.Property("base_customer_balance_amount", th.IntegerType),
+            th.Property("customer_balance_amount", th.IntegerType),
+            th.Property("base_customer_balance_invoiced", th.IntegerType),
+            th.Property("customer_balance_invoiced", th.IntegerType),
+            th.Property("base_customer_balance_refunded", th.IntegerType),
+            th.Property("customer_balance_refunded", th.IntegerType),
+            th.Property("base_customer_balance_total_refunded", th.IntegerType),
+            th.Property("customer_balance_total_refunded", th.IntegerType),
+            th.Property("giftcards", th.ArrayType(
+                th.ObjectType(
+                    th.Property("id", th.IntegerType),
+                    th.Property("code", th.StringType),
+                    th.Property("amount", th.IntegerType),
+                    th.Property("base_amount", th.IntegerType)
+                )
+            )),
+            th.Property("base_gift_cards_amount", th.IntegerType),
+            th.Property("gift_cards_amount", th.IntegerType),
+            th.Property("base_gift_cards_invoiced", th.IntegerType),
+            th.Property("gift_cards_invoiced", th.IntegerType),
+            th.Property("base_gift_cards_refunded", th.IntegerType),
+            th.Property("gift_cards_refunded", th.IntegerType),
+            th.Property("gift_message", th.ObjectType(
+                th.Property("gift_message_id", th.IntegerType),
+                th.Property("customer_id", th.IntegerType),
+                th.Property("sender", th.StringType),
+                th.Property("recipient", th.StringType),
+                th.Property("message", th.StringType),
+                th.Property("extension_attributes", th.ObjectType(
+                    th.Property("entity_id", th.StringType),
+                    th.Property("entity_type", th.StringType),
+                    th.Property("wrapping_id", th.IntegerType),
+                    th.Property("wrapping_allow_gift_receipt", th.BooleanType),
+                    th.Property("wrapping_add_printed_card", th.BooleanType)
+                ))
+            )),
+            th.Property("gw_id", th.StringType),
+            th.Property("gw_allow_gift_receipt", th.StringType),
+            th.Property("gw_add_card", th.StringType),
+            th.Property("gw_base_price", th.StringType),
+            th.Property("gw_price", th.StringType),
+            th.Property("gw_items_base_price", th.StringType),
+            th.Property("gw_items_price", th.StringType),
+            th.Property("gw_card_base_price", th.StringType),
+            th.Property("gw_card_price", th.StringType),
+            th.Property("gw_base_tax_amount", th.StringType),
+            th.Property("gw_tax_amount", th.StringType),
+            th.Property("gw_items_base_tax_amount", th.StringType),
+            th.Property("gw_items_tax_amount", th.StringType),
+            th.Property("gw_card_base_tax_amount", th.StringType),
+            th.Property("gw_card_tax_amount", th.StringType),
+            th.Property("gw_base_price_incl_tax", th.StringType),
+            th.Property("gw_price_incl_tax", th.StringType),
+            th.Property("gw_items_base_price_incl_tax", th.StringType),
+            th.Property("gw_items_price_incl_tax", th.StringType),
+            th.Property("gw_card_base_price_incl_tax", th.StringType),
+            th.Property("gw_card_price_incl_tax", th.StringType),
+            th.Property("gw_base_price_invoiced", th.StringType),
+            th.Property("gw_price_invoiced", th.StringType),
+            th.Property("gw_items_base_price_invoiced", th.StringType),
+            th.Property("gw_items_price_invoiced", th.StringType),
+            th.Property("gw_card_base_price_invoiced", th.StringType),
+            th.Property("gw_card_price_invoiced", th.StringType),
+            th.Property("gw_base_tax_amount_invoiced", th.StringType),
+            th.Property("gw_tax_amount_invoiced", th.StringType),
+            th.Property("gw_items_base_tax_invoiced", th.StringType),
+            th.Property("gw_items_tax_invoiced", th.StringType),
+            th.Property("gw_card_base_tax_invoiced", th.StringType),
+            th.Property("gw_card_tax_invoiced", th.StringType),
+            th.Property("gw_base_price_refunded", th.StringType),
+            th.Property("gw_price_refunded", th.StringType),
+            th.Property("gw_items_base_price_refunded", th.StringType),
+            th.Property("gw_items_price_refunded", th.StringType),
+            th.Property("gw_card_base_price_refunded", th.StringType),
+            th.Property("gw_card_price_refunded", th.StringType),
+            th.Property("gw_base_tax_amount_refunded", th.StringType),
+            th.Property("gw_tax_amount_refunded", th.StringType),
+            th.Property("gw_items_base_tax_refunded", th.StringType),
+            th.Property("gw_items_tax_refunded", th.StringType),
+            th.Property("gw_card_base_tax_refunded", th.StringType),
+            th.Property("gw_card_tax_refunded", th.StringType),
+            th.Property("pickup_location_code", th.StringType),
+            th.Property("notification_sent", th.IntegerType),
+            th.Property("send_notification", th.IntegerType),
+            th.Property("reward_points_balance", th.IntegerType),
+            th.Property("reward_currency_amount", th.IntegerType),
+            th.Property("base_reward_currency_amount", th.IntegerType),
+            th.Property("amazon_order_reference_id", th.ObjectType(
+                th.Property("amazon_order_reference_id", th.StringType),
+                th.Property("order_id", th.StringType)
+            ))
         ))
     )
