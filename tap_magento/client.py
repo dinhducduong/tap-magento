@@ -39,7 +39,10 @@ class MagentoStream(RESTStream):
     @property
     def http_headers(self) -> dict:
         """Return the http headers needed."""
-        headers = {"Content-Type": "application/json"}
+        headers = {
+            "Content-Type": "application/json",
+            # "Authorization": f"Bearer {self.config.get('api_key')}"
+            }
         if "user_agent" in self.config:
             headers["User-Agent"] = self.config.get("user_agent")
         # If not using an authenticator, you may also provide inline auth headers:
@@ -53,6 +56,7 @@ class MagentoStream(RESTStream):
         # TODO: If pagination is required, return a token which can be used to get the
         #       next page. If this is the final page, return "None" to end the
         #       pagination loop.
+        next_page_token = None
         if self.next_page_token_jsonpath:
             all_matches = extract_jsonpath(
                 self.next_page_token_jsonpath, response.json()
@@ -60,17 +64,26 @@ class MagentoStream(RESTStream):
             first_match = next(iter(all_matches), None)
             next_page_token = first_match
         else:
-            next_page_token = response.headers.get("X-Next-Page", None)
-
+            json_data = response.json()
+            total_count = json_data.get("total_count", 0)
+            current_page = json_data.get("search_criteria").get("current_page")
+            if total_count > current_page * 300:
+                next_page_token = current_page + 1
         return next_page_token
 
     def get_url_params(
         self, context: Optional[dict], next_page_token: Optional[Any]
     ) -> Dict[str, Any]:
         """Return a dictionary of values to be used in URL parameterization."""
-        params: dict = {}
+        # params: dict = {}
+        if not next_page_token:
+            params = {
+                "searchCriteria[pageSize]": "300",
+                "searchCriteria[currentPage]": "1"
+            }
+
         if next_page_token:
-            params["page"] = next_page_token
+            params["searchCriteria[currentPage]"] = next_page_token
         if self.replication_key:
             params["sort"] = "asc"
             params["order_by"] = self.replication_key
