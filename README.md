@@ -1,6 +1,6 @@
 # tap-magento
 
-`tap-magento` is a Singer tap for magento.
+`tap-magento` is a Singer tap for Magento.
 
 Built with the [Meltano Tap SDK](https://sdk.meltano.com) for Singer Taps.
 

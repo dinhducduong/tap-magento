@@ -1,13 +1,11 @@
 """Stream type classes for tap-magento."""
 
 from pathlib import Path
-import string
-from threading import ThreadError
 from typing import Any, Dict, Optional, Union, List, Iterable
 
 from singer_sdk import typing as th  # JSON Schema typing helpers
 
-from tap_magento.client import magentoStream
+from tap_magento.client import MagentoStream
 
 # TODO: Delete this is if not using json files for schema definition
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
@@ -15,40 +13,54 @@ SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 #       - Copy-paste as many times as needed to create multiple stream types.
 
 
-class UsersStream(magentoStream):
+class UsersStream(MagentoStream):
     """Define custom stream."""
-
     name = "users"
+    path = "/users"
     primary_keys = ["id"]
     replication_key = None
     # Optionally, you may also use `schema_filepath` in place of `schema`:
-    # schema_filepath = SCHEMAS_D:IR / "users.json"
+    # schema_filepath = SCHEMAS_DIR / "users.json"
     schema = th.PropertiesList(
         th.Property("name", th.StringType),
-        th.Property("id", th.StringType, description="The user's system ID"),
-        th.Property("age", th.IntegerType, description="The user's age in years"),
-        th.Property("email", th.StringType, description="The user's email address"),
+        th.Property(
+            "id",
+            th.StringType,
+            description="The user's system ID"
+        ),
+        th.Property(
+            "age",
+            th.IntegerType,
+            description="The user's age in years"
+        ),
+        th.Property(
+            "email",
+            th.StringType,
+            description="The user's email address"
+        ),
         th.Property("street", th.StringType),
         th.Property("city", th.StringType),
         th.Property(
-            "state", th.StringType, description="State name in ISO 3166-2 format"
+            "state",
+            th.StringType,
+            description="State name in ISO 3166-2 format"
         ),
         th.Property("zip", th.StringType),
     ).to_dict()
 
 
-class OrdersStream(magentoStream):
+class OrdersStream(MagentoStream):
     """Define Order Stream"""
 
     name = "orders"
-    path = "orders"
+    path = "/orders"
     primary_keys = []  # TODO
     replication_key = None
 
     schema = th.PropertiesList(
         th.Property("adjustment_negative", th.IntegerType),
         th.Property("adjustment_positive", th.IntegerType),
-        th.Property("applied_rule_ids", "string"),
+        th.Property("applied_rule_ids", th.StringType),
         th.Property("base_adjustment_negative", th.IntegerType),
         th.Property("base_adjustment_positive", th.IntegerType),
         th.Property("base_currency_code", th.StringType),
@@ -280,7 +292,7 @@ class OrdersStream(magentoStream):
                     th.Property("weee_tax_disposition", th.IntegerType),
                     th.Property("weee_tax_row_disposition", th.IntegerType),
                     th.Property("weight", th.IntegerType),
-                    th.Property("parent_item", th.ObjectType),
+                    th.Property("parent_item", th.ObjectType()),
                     th.Property(
                         "product_option",
                         th.ArrayType(
@@ -542,7 +554,7 @@ class OrdersStream(magentoStream):
                     th.Property("is_visible_on_front", th.IntegerType),
                     th.Property("parent_id", th.IntegerType),
                     th.Property("status", th.StringType),
-                    th.Property("extension_attributes", th.ObjectType),
+                    th.Property("extension_attributes", th.ObjectType()),
                 )
             ),
         ),
@@ -670,7 +682,7 @@ class OrdersStream(magentoStream):
                                         ),
                                     ),
                                     th.Property(
-                                        "extension_attributes", th.ObjectType()
+                                        "extension_attributes", th.StringType
                                     ),
                                 ),
                             )
@@ -735,7 +747,7 @@ class OrdersStream(magentoStream):
                                     )
                                 ),
                             ),
-                            th.Property("extension_attributes", th.ObjectType),
+                            th.Property("extension_attributes", th.ObjectType()),
                         )
                     ),
                 ),
@@ -852,7 +864,7 @@ class OrdersStream(magentoStream):
     ).to_dict()
 
 
-class ProductsStream(magentoStream):
+class ProductsStream(MagentoStream):
 
     name = "products"
     path = "products"
@@ -881,7 +893,7 @@ class ProductsStream(magentoStream):
                         th.ObjectType(
                             th.Property("position", th.IntegerType),
                             th.Property("category_id", th.StringType),
-                            th.Property("extension_attributes", th.ObjectType),
+                            th.Property("extension_attributes", th.ObjectType()),
                         )
                     ),
                 ),
@@ -916,7 +928,7 @@ class ProductsStream(magentoStream):
                                     )
                                 ),
                             ),
-                            th.Property("extension_attributes", th.ObjectType),
+                            th.Property("extension_attributes", th.ObjectType()),
                         )
                     ),
                 ),
@@ -951,7 +963,7 @@ class ProductsStream(magentoStream):
                         th.Property("low_stock_date", th.StringType),
                         th.Property("is_decimal_divided", th.BooleanType),
                         th.Property("stock_status_changed_auto", th.IntegerType),
-                        th.Property("extension_attributes", th.ObjectType),
+                        th.Property("extension_attributes", th.ObjectType()),
                     ),
                 ),
                 th.Property(
@@ -971,7 +983,7 @@ class ProductsStream(magentoStream):
                                 th.ObjectType(
                                     th.Property("file_data", th.StringType),
                                     th.Property("name", th.StringType),
-                                    th.Property("extension_attributes", th.ObjectType),
+                                    th.Property("extension_attributes", th.ObjectType()),
                                 ),
                             ),
                             th.Property("link_url", th.StringType),
@@ -982,11 +994,11 @@ class ProductsStream(magentoStream):
                                 th.ObjectType(
                                     th.Property("file_data", th.StringType),
                                     th.Property("name", th.StringType),
-                                    th.Property("extension_attributes", th.ObjectType),
+                                    th.Property("extension_attributes", th.ObjectType()),
                                 ),
                             ),
                             th.Property("sample_url", th.StringType),
-                            th.Property("extension_attributes", th.ObjectType),
+                            th.Property("extension_attributes", th.ObjectType()),
                         )
                     ),
                 ),
@@ -1004,11 +1016,11 @@ class ProductsStream(magentoStream):
                                 th.ObjectType(
                                     th.Property("file_data", th.StringType),
                                     th.Property("name", th.StringType),
-                                    th.Property("extension_attributes", th.ObjectType),
+                                    th.Property("extension_attributes", th.ObjectType()),
                                 ),
                             ),
                             th.Property("sample_url", th.StringType),
-                            th.Property("extension_attributes", th.ObjectType),
+                            th.Property("extension_attributes", th.ObjectType()),
                         )
                     ),
                 ),
@@ -1020,7 +1032,7 @@ class ProductsStream(magentoStream):
                             th.Property("website_id", th.IntegerType),
                             th.Property("value", th.IntegerType),
                             th.Property("website_value", th.IntegerType),
-                            th.Property("extension_attributes", th.ObjectType),
+                            th.Property("extension_attributes", th.ObjectType()),
                         )
                     ),
                 ),
@@ -1033,8 +1045,8 @@ class ProductsStream(magentoStream):
                             th.Property("label", th.StringType),
                             th.Property("position", th.IntegerType),
                             th.Property("is_use_default", th.BooleanType),
-                            th.Property("values", th.ArrayType(th.ObjectType)),
-                            th.Property("extension_attributes", th.ObjectType),
+                            th.Property("values", th.ArrayType(th.ObjectType())),
+                            th.Property("extension_attributes", th.ObjectType()),
                             th.Property("product_id", th.IntegerType),
                         )
                     ),
@@ -1116,16 +1128,15 @@ class ProductsStream(magentoStream):
                     th.Property(
                         "content",
                         th.ObjectType(
-                            th.ObjectType("base64_encoded_data", th.StringType),
-                            th.ObjectType("type", th.StringType),
-                            th.ObjectType("name", th.StringType),
+                            th.Property("base64_encoded_data", th.StringType),
+                            th.Property("type", th.StringType),
+                            th.Property("name", th.StringType),
                         ),
                     ),
                     th.Property(
                         "extension_attributes",
                         th.ObjectType(
-                            th.ObjectType(
-                                "video_content",
+                            th.Property("video_content",
                                 th.ObjectType(
                                     th.Property("media_type", th.StringType),
                                     th.Property("video_provider", th.StringType),
@@ -1135,7 +1146,8 @@ class ProductsStream(magentoStream):
                                     th.Property("video_metadata", th.StringType),
                                 ),
                             )
-                        ),
+                        )
+                        
                     ),
                 )
             ),
@@ -1166,4 +1178,4 @@ class ProductsStream(magentoStream):
                 )
             ),
         ),
-    )
+    ).to_dict()
