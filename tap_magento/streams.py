@@ -576,21 +576,21 @@ class OrdersStream(MagentoStream):
                                             th.Property("company", th.StringType),
                                             th.Property("country_id", th.StringType),
                                             th.Property(
-                                                "customer_address_id", th.StringType
+                                                "customer_address_id", th.IntegerType
                                             ),
                                             th.Property("customer_id", th.StringType),
                                             th.Property("email", th.StringType),
-                                            th.Property("entity_id", th.StringType),
+                                            th.Property("entity_id", th.IntegerType),
                                             th.Property("fax", th.StringType),
                                             th.Property("firstname", th.StringType),
                                             th.Property("lastname", th.StringType),
                                             th.Property("middlename", th.StringType),
-                                            th.Property("parent_id", th.StringType),
+                                            th.Property("parent_id", th.IntegerType),
                                             th.Property("postcode", th.StringType),
                                             th.Property("prefix", th.StringType),
                                             th.Property("region", th.StringType),
                                             th.Property("region_code", th.StringType),
-                                            th.Property("region_id", th.StringType),
+                                            th.Property("region_id", th.IntegerType),
                                             th.Property(
                                                 "street", th.ArrayType(th.StringType)
                                             ),
@@ -617,21 +617,21 @@ class OrdersStream(MagentoStream):
                                         "total",
                                         th.ObjectType(
                                             th.Property(
-                                                "base_shipping_amount", th.StringType
+                                                "base_shipping_amount", th.IntegerType
                                             ),
                                             th.Property(
                                                 "base_shipping_canceled", th.StringType
                                             ),
                                             th.Property(
                                                 "base_shipping_discount_amount",
-                                                th.StringType,
+                                                th.IntegerType,
                                             ),
                                             th.Property(
                                                 "base_shipping_discount_tax_compensation_amnt",
-                                                th.StringType,
+                                                th.IntegerType,
                                             ),
                                             th.Property(
-                                                "base_shipping_incl_tax", th.StringType
+                                                "base_shipping_incl_tax", th.IntegerType
                                             ),
                                             th.Property(
                                                 "base_shipping_invoiced", th.StringType
@@ -641,28 +641,28 @@ class OrdersStream(MagentoStream):
                                             ),
                                             th.Property(
                                                 "base_shipping_tax_amount",
-                                                th.StringType,
+                                                th.IntegerType,
                                             ),
                                             th.Property(
                                                 "base_shipping_tax_refunded",
                                                 th.StringType,
                                             ),
                                             th.Property(
-                                                "shipping_amount", th.StringType
+                                                "shipping_amount", th.IntegerType
                                             ),
                                             th.Property(
                                                 "shipping_canceled", th.StringType
                                             ),
                                             th.Property(
                                                 "shipping_discount_amount",
-                                                th.StringType,
+                                                th.IntegerType,
                                             ),
                                             th.Property(
                                                 "shipping_discount_tax_compensation_amount",
-                                                th.StringType,
+                                                th.IntegerType,
                                             ),
                                             th.Property(
-                                                "shipping_incl_tax", th.StringType
+                                                "shipping_incl_tax", th.IntegerType
                                             ),
                                             th.Property(
                                                 "shipping_invoiced", th.StringType
@@ -671,10 +671,10 @@ class OrdersStream(MagentoStream):
                                                 "shipping_refunded", th.StringType
                                             ),
                                             th.Property(
-                                                "shipping_tax_amount", th.StringType
+                                                "shipping_tax_amount", th.IntegerType
                                             ),
                                             th.Property(
-                                                "shipping_tax_refunded", th.StringType
+                                                "shipping_tax_refunded", th.IntegerType
                                             ),
                                             th.Property(
                                                 "extension_attributes", th.StringType
@@ -719,7 +719,14 @@ class OrdersStream(MagentoStream):
                             th.Property(
                                 "extension_attributes",
                                 th.ObjectType(
-                                    th.Property("rates", th.ArrayType(th.StringType))
+                                    th.Property("rates", th.ArrayType(
+                                        th.ObjectType(
+                                            th.Property("code", th.StringType),
+                                            th.Property("title", th.StringType),
+                                            th.Property("percent", th.IntegerType),
+                                            th.Property("extension_attributes", th.ObjectType())
+                                        )
+                                    ))
                                 ),
                             ),
                         )
@@ -867,7 +874,7 @@ class OrdersStream(MagentoStream):
 class ProductsStream(MagentoStream):
 
     name = "products"
-    path = "products"
+    path = "/products"
     primary_keys = ["id"]
     replication_key = None
 
@@ -1174,7 +1181,7 @@ class ProductsStream(MagentoStream):
             th.ArrayType(
                 th.ObjectType(
                     th.Property("attribute_code", th.StringType),
-                    th.Property("value", th.StringType),
+                    # th.Property("value", th.StringType),
                 )
             ),
         ),
