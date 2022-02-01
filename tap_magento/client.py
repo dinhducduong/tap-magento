@@ -17,13 +17,12 @@ SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 class MagentoStream(RESTStream):
     """Magento stream class."""
 
-    url_base = "https://magento.bepatrickdavid.com/rest/all/V1"
-
     # OR use a dynamic url_base:
-    # @property
-    # def url_base(self) -> str:
-    #     """Return the API URL root, configurable via tap settings."""
-    #     return self.config["api_url"]
+    @property
+    def url_base(self) -> str:
+        """Return the API URL root, configurable via tap settings."""
+        warehouse_name = self.config["warehouse_name"]
+        return f"https://magento.{warehouse_name}/rest/all/V1"
 
     records_jsonpath = "$.items[*]"  # Or override `parse_response`.
     # next_page_token_jsonpath = "$.next_page"  # Or override `get_next_page_token`.
