@@ -38,9 +38,9 @@ class TapMagento(Tap):
             description="The earliest record date to sync"
         ),
         th.Property(
-            "warehouse_name",
+            "store_url",
             th.StringType,
-            description="The warehouse name"
+            description="The store url"
         ),
     ).to_dict()
 

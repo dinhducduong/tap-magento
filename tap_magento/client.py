@@ -21,8 +21,8 @@ class MagentoStream(RESTStream):
     @property
     def url_base(self) -> str:
         """Return the API URL root, configurable via tap settings."""
-        warehouse_name = self.config["warehouse_name"]
-        return f"https://magento.{warehouse_name}/rest/all/V1"
+        store_url = self.config["store_url"]
+        return f"{store_url}/rest/all/V1"
 
     records_jsonpath = "$.items[*]"  # Or override `parse_response`.
     # next_page_token_jsonpath = "$.next_page"  # Or override `get_next_page_token`.
