@@ -38,10 +38,9 @@ class TapMagento(Tap):
             description="The earliest record date to sync"
         ),
         th.Property(
-            "api_url",
+            "warehouse_name",
             th.StringType,
-            default="https://api.mysample.com",
-            description="The url for the API service"
+            description="The warehouse name"
         ),
     ).to_dict()
 
