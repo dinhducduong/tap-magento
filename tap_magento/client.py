@@ -74,15 +74,13 @@ class MagentoStream(RESTStream):
         self, context: Optional[dict], next_page_token: Optional[Any]
     ) -> Dict[str, Any]:
         """Return a dictionary of values to be used in URL parameterization."""
-        # params: dict = {}
+        params = {}
+        params["searchCriteria[pageSize]"] = 300
         if not next_page_token:
-            params = {
-                "searchCriteria[pageSize]": "300",
-                "searchCriteria[currentPage]": "1"
-            }
-
-        if next_page_token:
+            params["searchCriteria[currentPage]"] = 1
+        else:
             params["searchCriteria[currentPage]"] = next_page_token
+        
         if self.replication_key:
             params["sort"] = "asc"
             params["order_by"] = self.replication_key
