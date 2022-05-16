@@ -10,13 +10,15 @@ from tap_magento.streams import (
     UsersStream,
     OrdersStream,
     ProductsStream,
+    ProductItemStocksStream
 )
 # TODO: Compile a list of custom stream types here
 #       OR rewrite discover_streams() below with your custom logic.
 STREAM_TYPES = [
     # UsersStream,
     OrdersStream,
-    ProductsStream
+    ProductsStream,
+    ProductItemStocksStream
 ]
 
 
@@ -27,7 +29,13 @@ class TapMagento(Tap):
     # TODO: Update this section with the actual config values you expect:
     config_jsonschema = th.PropertiesList(
         th.Property(
-            "api_key",
+            "username",
+            th.StringType,
+            required=True,
+            description="The token to authenticate against the API service"
+        ),
+        th.Property(
+            "password",
             th.StringType,
             required=True,
             description="The token to authenticate against the API service"
@@ -40,6 +48,7 @@ class TapMagento(Tap):
         th.Property(
             "store_url",
             th.StringType,
+            required=True,
             description="The store url"
         ),
     ).to_dict()

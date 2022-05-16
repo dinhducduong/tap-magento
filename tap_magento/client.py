@@ -9,6 +9,7 @@ from memoization import cached
 from singer_sdk.helpers.jsonpath import extract_jsonpath
 from singer_sdk.streams import RESTStream
 from singer_sdk.authenticators import BearerTokenAuthenticator
+from datetime import datetime
 
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
@@ -16,6 +17,8 @@ SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 
 class MagentoStream(RESTStream):
     """Magento stream class."""
+    access_token = None
+    expires_in = None
 
     # OR use a dynamic url_base:
     @property
@@ -32,8 +35,22 @@ class MagentoStream(RESTStream):
         """Return a new authenticator object."""
         return BearerTokenAuthenticator.create_for_stream(
             self,
-            token=self.config.get("api_key")
+            token=self.get_token()
         )
+
+    def get_token(self):
+        now = round(datetime.utcnow().timestamp())
+        if not self.access_token:
+            s = requests.Session()
+            payload = {
+                "Content-Type": "application/json",
+                "username": self.config.get('username'),
+                "password": self.config.get('password'),
+                }
+            login = s.post(f"{self.config['store_url']}/index.php/rest/V1/integration/admin/token", json=payload).json()
+            self.access_token = login
+
+        return self.access_token
 
     @property
     def http_headers(self) -> dict:
@@ -65,7 +82,10 @@ class MagentoStream(RESTStream):
         else:
             json_data = response.json()
             total_count = json_data.get("total_count", 0)
-            current_page = json_data.get("search_criteria").get("current_page")
+            if json_data.get("search_criteria"):
+                current_page = json_data.get("search_criteria").get("current_page")
+            else:
+                current_page = 1    
             if total_count > current_page * 300:
                 next_page_token = current_page + 1
         return next_page_token
@@ -82,7 +102,13 @@ class MagentoStream(RESTStream):
             params["searchCriteria[currentPage]"] = next_page_token
         
         if self.replication_key:
-            params["sort"] = "asc"
+            start_date = self.get_starting_timestamp(context)
+            if start_date is not None:
+                start_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
+                params["sort"] = "asc"
+                params["searchCriteria[filterGroups][0][filters][0][field]"] = self.replication_key
+                params["searchCriteria[filterGroups][0][filters][0][value]"] = start_date
+                params["searchCriteria[filterGroups][0][filters][0][conditionType]"] = "gt"
             params["order_by"] = self.replication_key
         return params
 

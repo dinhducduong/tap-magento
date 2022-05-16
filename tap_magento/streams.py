@@ -38,7 +38,7 @@ class OrdersStream(MagentoStream):
     name = "orders"
     path = "/orders"
     primary_keys = []  # TODO
-    replication_key = None
+    replication_key = "updated_at"
 
     schema = th.PropertiesList(
         th.Property("adjustment_negative", th.IntegerType),
@@ -203,7 +203,7 @@ class ProductsStream(MagentoStream):
     name = "products"
     path = "/products"
     primary_keys = ["id"]
-    replication_key = None
+    replication_key = "updated_at"
 
     schema = th.PropertiesList(
         th.Property("id", th.IntegerType),
@@ -216,7 +216,7 @@ class ProductsStream(MagentoStream):
         th.Property("type_id", th.StringType),
         th.Property("created_at", th.DateTimeType),
         th.Property("updated_at", th.DateTimeType),
-        th.Property("weight", th.IntegerType),
+        th.Property("weight", th.NumberType),
         th.Property(
             "extension_attributes",
             th.CustomType({"type": ["object", "string"]})
@@ -251,4 +251,47 @@ class ProductsStream(MagentoStream):
                 th.CustomType({"type": ["null", "object"]})
             ),
         ),
+    ).to_dict()
+
+    def get_child_context(self, record: dict, context: Optional[dict]) -> dict:
+        """Return a context dictionary for child streams."""
+        return {
+            "product_sku": record["sku"],
+        }
+class ProductItemStocksStream(MagentoStream):
+
+    name = "product_item_stocks"
+    path = "/stockItems/{product_sku}"
+    primary_keys = ["item_id"]
+    records_jsonpath: str = "$[*]"
+    replication_key = None
+    parent_stream_type = ProductsStream
+    schema = th.PropertiesList(
+        th.Property("id", th.IntegerType),
+        th.Property("item_id", th.IntegerType),
+        th.Property("product_id", th.IntegerType),
+        th.Property("stock_id", th.IntegerType),
+        th.Property("qty", th.IntegerType),
+        th.Property("is_in_stock", th.BooleanType),
+        th.Property("is_qty_decimal", th.BooleanType),
+        th.Property("show_default_notification_message", th.BooleanType),
+        th.Property("use_config_min_qty", th.BooleanType),
+        th.Property("min_qty", th.IntegerType),
+        th.Property("use_config_min_sale_qty", th.IntegerType),
+        th.Property("min_sale_qty", th.IntegerType),
+        th.Property("use_config_max_sale_qty", th.BooleanType),
+        th.Property("max_sale_qty", th.IntegerType),
+        th.Property("use_config_backorders", th.BooleanType),
+        th.Property("backorders", th.IntegerType),
+        th.Property("use_config_notify_stock_qty", th.BooleanType),
+        th.Property("notify_stock_qty", th.IntegerType),
+        th.Property("use_config_qty_increments", th.BooleanType),
+        th.Property("qty_increments", th.IntegerType),
+        th.Property("use_config_enable_qty_inc", th.BooleanType),
+        th.Property("enable_qty_increments", th.BooleanType),
+        th.Property("use_config_manage_stock", th.BooleanType),
+        th.Property("manage_stock", th.BooleanType),
+        th.Property("low_stock_date", th.DateTimeType),
+        th.Property("is_decimal_divided", th.BooleanType),
+        th.Property("stock_status_changed_auto", th.IntegerType),
     ).to_dict()
