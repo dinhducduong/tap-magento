@@ -33,9 +33,13 @@ class MagentoStream(RESTStream):
     @property
     def authenticator(self) -> BearerTokenAuthenticator:
         """Return a new authenticator object."""
+        if  self.config.get('username') and self.config.get('password') is not None:   
+            token = self.get_token()
+        else:
+            token = self.config.get('api_key')    
         return BearerTokenAuthenticator.create_for_stream(
             self,
-            token=self.get_token()
+            token=token
         )
 
     def get_token(self):

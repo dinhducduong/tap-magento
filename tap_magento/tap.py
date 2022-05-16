@@ -28,17 +28,19 @@ class TapMagento(Tap):
 
     # TODO: Update this section with the actual config values you expect:
     config_jsonschema = th.PropertiesList(
+        
         th.Property(
-            "username",
+            "api_key",
             th.StringType,
-            required=True,
             description="The token to authenticate against the API service"
         ),
         th.Property(
+            "username",
+            th.StringType
+        ),
+        th.Property(
             "password",
-            th.StringType,
-            required=True,
-            description="The token to authenticate against the API service"
+            th.StringType
         ),
         th.Property(
             "start_date",
