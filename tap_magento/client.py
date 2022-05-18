@@ -1,6 +1,7 @@
 """REST client handling, including MagentoStream base class."""
 
 import requests
+import logging
 from pathlib import Path
 from typing import Any, Dict, Optional, Union, List, Iterable
 
@@ -14,6 +15,7 @@ from datetime import datetime
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 
+logging.getLogger("backoff").setLevel(logging.CRITICAL)
 
 class MagentoStream(RESTStream):
     """Magento stream class."""
