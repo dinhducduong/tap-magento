@@ -10,7 +10,8 @@ from tap_magento.streams import (
     UsersStream,
     OrdersStream,
     ProductsStream,
-    ProductItemStocksStream
+    ProductItemStocksStream,
+    CategoryStream
 )
 # TODO: Compile a list of custom stream types here
 #       OR rewrite discover_streams() below with your custom logic.
@@ -18,7 +19,8 @@ STREAM_TYPES = [
     # UsersStream,
     OrdersStream,
     ProductsStream,
-    ProductItemStocksStream
+    ProductItemStocksStream,
+    CategoryStream
 ]
 
 

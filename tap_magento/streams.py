@@ -6,6 +6,7 @@ from typing import Any, Dict, Optional, Union, List, Iterable
 from singer_sdk import typing as th  # JSON Schema typing helpers
 
 from tap_magento.client import MagentoStream
+import requests
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 
@@ -295,3 +296,26 @@ class ProductItemStocksStream(MagentoStream):
         th.Property("is_decimal_divided", th.BooleanType),
         th.Property("stock_status_changed_auto", th.NumberType),
     ).to_dict()
+class CategoryStream(MagentoStream):
+
+    name = "categories"
+    path = "/categories/list"
+    primary_keys = ["id"]
+    records_jsonpath: str = "$.items[*]"
+    replication_key = "updated_at"
+    schema = th.PropertiesList(
+        th.Property("id", th.NumberType),
+        th.Property("parent_id", th.NumberType),
+        th.Property("name", th.StringType),
+        th.Property("is_active", th.BooleanType),
+        th.Property("position", th.NumberType),
+        th.Property("level", th.NumberType),
+        th.Property("children", th.StringType),
+        th.Property("created_at", th.DateTimeType),
+        th.Property("updated_at", th.DateTimeType),
+        th.Property("path", th.StringType),
+        th.Property("include_in_menu", th.BooleanType),
+        th.Property("available_sort_by", th.CustomType({"type": ["array", "string"]})),
+        th.Property("custom_attributes", th.CustomType({"type": ["array", "string"]})),
+    ).to_dict()
+    
