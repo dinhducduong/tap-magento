@@ -318,4 +318,74 @@ class CategoryStream(MagentoStream):
         th.Property("available_sort_by", th.CustomType({"type": ["array", "string"]})),
         th.Property("custom_attributes", th.CustomType({"type": ["array", "string"]})),
     ).to_dict()
+class CouponsStream(MagentoStream):
+
+    name = "coupons"
+    path = "/coupons/search"
+    primary_keys = ["coupon_id"]
+    records_jsonpath: str = "$.items[*]"
+    replication_key = None
+    schema = th.PropertiesList(
+        th.Property("coupon_id", th.NumberType),
+        th.Property("rule_id", th.NumberType),
+        th.Property("code", th.StringType),
+        th.Property("usage_limit", th.NumberType),
+        th.Property("times_used", th.NumberType),
+        th.Property("is_primary", th.StringType),
+        th.Property("type", th.NumberType),
+        
+    ).to_dict()
+class SaleRulesStream(MagentoStream):
+
+    name = "salerules"
+    path = "/salesRules/search"
+    primary_keys = ["rule_id"]
+    records_jsonpath: str = "$.items[*]"
+    replication_key = None
+    schema = th.PropertiesList(
+        th.Property("rule_id", th.NumberType),
+        th.Property("name", th.StringType),
+        th.Property("store_labels", th.CustomType({"type": ["array", "string"]})),
+        th.Property("description", th.StringType),
+        th.Property("website_ids", th.CustomType({"type": ["array", "string"]})),
+        th.Property("customer_group_ids", th.CustomType({"type": ["array", "string"]})),
+        th.Property("from_date", th.DateTimeType),
+        th.Property("uses_per_customer", th.NumberType),
+        th.Property("is_active", th.BooleanType),
+        th.Property("condition", th.CustomType({"type": ["object", "string"]})),
+        th.Property("action_condition", th.CustomType({"type": ["object", "string"]})),
+        th.Property("stop_rules_processing", th.BooleanType),
+        th.Property("is_advanced", th.BooleanType),
+        th.Property("sort_order", th.NumberType),
+        th.Property("simple_action", th.StringType),
+        th.Property("discount_amount", th.NumberType),
+        th.Property("discount_step", th.NumberType),
+        th.Property("apply_to_shipping", th.BooleanType),
+        th.Property("times_used", th.NumberType),
+        th.Property("is_rss", th.BooleanType),
+        th.Property("coupon_type", th.StringType),
+        th.Property("use_auto_generation", th.BooleanType),
+        th.Property("uses_per_coupon", th.NumberType),
+        th.Property("simple_free_shipping", th.StringType),
+        th.Property("extension_attributes", th.CustomType({"type": ["object", "string"]})),
+        
+    ).to_dict()
+
+class CouponsStream(MagentoStream):
+
+    name = "coupons"
+    path = "/coupons/search"
+    primary_keys = ["coupon_id"]
+    records_jsonpath: str = "$.items[*]"
+    replication_key = None
+    schema = th.PropertiesList(
+        th.Property("coupon_id", th.NumberType),
+        th.Property("rule_id", th.NumberType),
+        th.Property("code", th.StringType),
+        th.Property("usage_limit", th.NumberType),
+        th.Property("times_used", th.NumberType),
+        th.Property("is_primary", th.BooleanType),
+        th.Property("type", th.NumberType),
+        
+    ).to_dict()
     
