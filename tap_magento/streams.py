@@ -318,23 +318,6 @@ class CategoryStream(MagentoStream):
         th.Property("available_sort_by", th.CustomType({"type": ["array", "string"]})),
         th.Property("custom_attributes", th.CustomType({"type": ["array", "string"]})),
     ).to_dict()
-class CouponsStream(MagentoStream):
-
-    name = "coupons"
-    path = "/coupons/search"
-    primary_keys = ["coupon_id"]
-    records_jsonpath: str = "$.items[*]"
-    replication_key = None
-    schema = th.PropertiesList(
-        th.Property("coupon_id", th.NumberType),
-        th.Property("rule_id", th.NumberType),
-        th.Property("code", th.StringType),
-        th.Property("usage_limit", th.NumberType),
-        th.Property("times_used", th.NumberType),
-        th.Property("is_primary", th.StringType),
-        th.Property("type", th.NumberType),
-        
-    ).to_dict()
 class SaleRulesStream(MagentoStream):
 
     name = "salerules"
