@@ -14,8 +14,6 @@ from singer_sdk.authenticators import BearerTokenAuthenticator
 from datetime import datetime
 
 
-SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
-
 logging.getLogger("backoff").setLevel(logging.CRITICAL)
 
 class MagentoStream(RESTStream):
@@ -23,15 +21,13 @@ class MagentoStream(RESTStream):
     access_token = None
     expires_in = None
 
-    # OR use a dynamic url_base:
     @property
     def url_base(self) -> str:
         """Return the API URL root, configurable via tap settings."""
         store_url = self.config["store_url"]
         return f"{store_url}/rest/all/V1"
 
-    records_jsonpath = "$.items[*]"  # Or override `parse_response`.
-    # next_page_token_jsonpath = "$.next_page"  # Or override `get_next_page_token`.
+    records_jsonpath = "$.items[*]"
 
     @property
     def authenticator(self) -> BearerTokenAuthenticator:
@@ -54,8 +50,12 @@ class MagentoStream(RESTStream):
                 "username": self.config.get('username'),
                 "password": self.config.get('password'),
                 }
-            login = s.post(f"{self.config['store_url']}/index.php/rest/V1/integration/admin/token", json=payload).json()
-            self.access_token = login
+            login = s.post(f"{self.config['store_url']}/index.php/rest/V1/integration/admin/token", json=payload)
+            if login.status_code >=300:
+                login = s.post(f"{self.config['store_url']}/rest/V1/integration/admin/token", json=payload)
+            login.raise_for_status()
+
+            self.access_token = login.json()
 
         return self.access_token
 
@@ -64,21 +64,15 @@ class MagentoStream(RESTStream):
         """Return the http headers needed."""
         headers = {
             "Content-Type": "application/json",
-            # "Authorization": f"Bearer {self.config.get('api_key')}"
             }
         if "user_agent" in self.config:
             headers["User-Agent"] = self.config.get("user_agent")
-        # If not using an authenticator, you may also provide inline auth headers:
-        # headers["Private-Token"] = self.config.get("auth_token")
         return headers
 
     def get_next_page_token(
         self, response: requests.Response, previous_token: Optional[Any]
     ) -> Optional[Any]:
         """Return a token for identifying next page or None if no more pages."""
-        # TODO: If pagination is required, return a token which can be used to get the
-        #       next page. If this is the final page, return "None" to end the
-        #       pagination loop.
         next_page_token = None
         if self.next_page_token_jsonpath:
             all_matches = extract_jsonpath(
