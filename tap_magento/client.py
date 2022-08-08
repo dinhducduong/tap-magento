@@ -3,7 +3,7 @@
 import requests
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional, Union, List, Iterable
+from typing import Any, Dict, Optional, Callable, List, Iterable
 
 from memoization import cached
 
@@ -12,6 +12,7 @@ from singer_sdk.streams import RESTStream
 from singer_sdk.exceptions import FatalAPIError, RetriableAPIError
 from singer_sdk.authenticators import BearerTokenAuthenticator
 from datetime import datetime
+import backoff
 
 
 logging.getLogger("backoff").setLevel(logging.CRITICAL)
@@ -80,6 +81,8 @@ class MagentoStream(RESTStream):
             )
             first_match = next(iter(all_matches), None)
             next_page_token = first_match
+        elif response.status_code == 404:
+            return None
         else:
             json_data = response.json()
             total_count = json_data.get("total_count", 0)
@@ -136,3 +139,20 @@ class MagentoStream(RESTStream):
         if response.status_code == 404:
             return []
         yield from extract_jsonpath(self.records_jsonpath, input=response.json())
+
+
+    def request_decorator(self, func: Callable) -> Callable:
+        """Instantiate a decorator for handling request failures.
+        """
+        decorator: Callable = backoff.on_exception(
+            backoff.expo,
+            (
+                RetriableAPIError,
+                requests.exceptions.ReadTimeout,
+                ConnectionError
+            ),
+            max_tries=5,
+            factor=2,
+        )(func)
+        return decorator
+
