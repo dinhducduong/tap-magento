@@ -26,7 +26,7 @@ class MagentoStream(RESTStream):
     def url_base(self) -> str:
         """Return the API URL root, configurable via tap settings."""
         store_url = self.config["store_url"]
-        return f"{store_url}/rest/all/V1"
+        return f"{store_url}/rest/V1"
 
     records_jsonpath = "$.items[*]"
 
