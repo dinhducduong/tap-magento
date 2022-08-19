@@ -51,8 +51,11 @@ class MagentoStream(RESTStream):
                 "username": self.config.get('username'),
                 "password": self.config.get('password'),
                 }
-            login = s.post(f"{self.config['store_url']}/index.php/rest/V1/integration/admin/token", json=payload)
-            if login.status_code >=300:
+            try:
+                login = s.post(f"{self.config['store_url']}/index.php/rest/V1/integration/admin/token", json=payload)
+                login.json()
+                login.raise_for_status()
+            except:
                 login = s.post(f"{self.config['store_url']}/rest/V1/integration/admin/token", json=payload)
             login.raise_for_status()
 

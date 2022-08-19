@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tap-magento"
-version = "0.0.10"
+version = "0.0.11"
 description = "`tap-magento` is a Singer tap for Magento, built with the Meltano SDK for Singer Taps."
 authors = ["hotglue"]
 keywords = [
