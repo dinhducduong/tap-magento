@@ -174,27 +174,15 @@ class OrdersStream(MagentoStream):
         th.Property("updated_at", th.DateTimeType),
         th.Property("weight", th.NumberType),
         th.Property("x_forwarded_for", th.StringType),
-        th.Property(
-            "items",
-            th.ArrayType(th.CustomType({"type": ["null", "object"]}))
-        ),
-        th.Property(
-            "billing_address",
-            th.CustomType({"type": ["object", "string"]})
-        ),
-        th.Property(
-            "payment",
-            th.CustomType({"type": ["object", "string"]})
-        ),
+        th.Property("items", th.ArrayType(th.CustomType({"type": ["null", "object"]}))),
+        th.Property("billing_address", th.CustomType({"type": ["object", "string"]})),
+        th.Property("payment", th.CustomType({"type": ["object", "string"]})),
         th.Property(
             "status_histories",
-            th.ArrayType(
-                th.CustomType({"type": ["null", "object"]})
-            ),
+            th.ArrayType(th.CustomType({"type": ["null", "object"]})),
         ),
         th.Property(
-            "extension_attributes",
-            th.CustomType({"type": ["object", "string"]})
+            "extension_attributes", th.CustomType({"type": ["object", "string"]})
         ),
     ).to_dict()
 
@@ -219,38 +207,27 @@ class ProductsStream(MagentoStream):
         th.Property("updated_at", th.DateTimeType),
         th.Property("weight", th.NumberType),
         th.Property(
-            "extension_attributes",
-            th.CustomType({"type": ["object", "string"]})
+            "extension_attributes", th.CustomType({"type": ["object", "string"]})
         ),
         th.Property(
             "product_links",
-            th.ArrayType(
-                th.CustomType({"type": ["null", "object"]})
-            ),
+            th.ArrayType(th.CustomType({"type": ["null", "object"]})),
         ),
         th.Property(
             "options",
-            th.ArrayType(
-                th.CustomType({"type": ["null", "object"]})
-            ),
+            th.ArrayType(th.CustomType({"type": ["null", "object"]})),
         ),
         th.Property(
             "media_gallery_entries",
-            th.ArrayType(
-                th.CustomType({"type": ["null", "object"]})
-            ),
+            th.ArrayType(th.CustomType({"type": ["null", "object"]})),
         ),
         th.Property(
             "tier_prices",
-            th.ArrayType(
-                th.CustomType({"type": ["null", "object"]})
-            ),
+            th.ArrayType(th.CustomType({"type": ["null", "object"]})),
         ),
         th.Property(
             "custom_attributes",
-            th.ArrayType(
-                th.CustomType({"type": ["null", "object"]})
-            ),
+            th.ArrayType(th.CustomType({"type": ["null", "object"]})),
         ),
     ).to_dict()
 
@@ -259,6 +236,8 @@ class ProductsStream(MagentoStream):
         return {
             "product_sku": record["sku"],
         }
+
+
 class ProductItemStocksStream(MagentoStream):
 
     name = "product_item_stocks"
@@ -296,6 +275,8 @@ class ProductItemStocksStream(MagentoStream):
         th.Property("is_decimal_divided", th.BooleanType),
         th.Property("stock_status_changed_auto", th.NumberType),
     ).to_dict()
+
+
 class CategoryStream(MagentoStream):
 
     name = "categories"
@@ -318,6 +299,8 @@ class CategoryStream(MagentoStream):
         th.Property("available_sort_by", th.CustomType({"type": ["array", "string"]})),
         th.Property("custom_attributes", th.CustomType({"type": ["array", "string"]})),
     ).to_dict()
+
+
 class SaleRulesStream(MagentoStream):
 
     name = "salerules"
@@ -350,9 +333,11 @@ class SaleRulesStream(MagentoStream):
         th.Property("use_auto_generation", th.BooleanType),
         th.Property("uses_per_coupon", th.NumberType),
         th.Property("simple_free_shipping", th.StringType),
-        th.Property("extension_attributes", th.CustomType({"type": ["object", "string"]})),
-        
+        th.Property(
+            "extension_attributes", th.CustomType({"type": ["object", "string"]})
+        ),
     ).to_dict()
+
 
 class CouponsStream(MagentoStream):
 
@@ -369,6 +354,62 @@ class CouponsStream(MagentoStream):
         th.Property("times_used", th.NumberType),
         th.Property("is_primary", th.BooleanType),
         th.Property("type", th.NumberType),
-        
     ).to_dict()
-    
+
+
+class InvoicesStream(MagentoStream):
+
+    name = "invoices"
+    path = "/invoices"
+    primary_keys = ["increment_id"]
+    records_jsonpath: str = "$.items[*]"
+    replication_key = "updated_at"
+    schema = th.PropertiesList(
+        th.Property("base_currency_code", th.StringType),
+        th.Property("base_discount_amount", th.NumberType),
+        th.Property("base_grand_total", th.NumberType),
+        th.Property("base_discount_tax_compensation_amount", th.NumberType),
+        th.Property("base_shipping_amount", th.NumberType),
+        th.Property("base_shipping_discount_tax_compensation_amnt", th.NumberType),
+        th.Property("base_shipping_incl_tax", th.NumberType),
+        th.Property("base_shipping_tax_amount", th.NumberType),
+        th.Property("base_subtotal", th.NumberType),
+        th.Property("base_subtotal_incl_tax", th.NumberType),
+        th.Property("base_tax_amount", th.NumberType),
+        th.Property("base_total_refunded", th.NumberType),
+        th.Property("base_to_global_rate", th.NumberType),
+        th.Property("base_to_order_rate", th.NumberType),
+        th.Property("billing_address_id", th.NumberType),
+        th.Property("can_void_flag", th.NumberType),
+        th.Property("created_at", th.DateTimeType),
+        th.Property("discount_amount", th.NumberType),
+        th.Property("discount_description", th.StringType),
+        th.Property("email_sent", th.NumberType),
+        th.Property("entity_id", th.NumberType),
+        th.Property("global_currency_code", th.StringType),
+        th.Property("grand_total", th.NumberType),
+        th.Property("discount_tax_compensation_amount", th.NumberType),
+        th.Property("increment_id", th.StringType),
+        th.Property("is_used_for_refund", th.NumberType),
+        th.Property("order_currency_code", th.StringType),
+        th.Property("order_id", th.NumberType),
+        th.Property("shipping_address_id", th.NumberType),
+        th.Property("shipping_amount", th.NumberType),
+        th.Property("shipping_discount_tax_compensation_amount", th.NumberType),
+        th.Property("shipping_incl_tax", th.NumberType),
+        th.Property("shipping_tax_amount", th.NumberType),
+        th.Property("state", th.NumberType),
+        th.Property("store_currency_code", th.StringType),
+        th.Property("store_id", th.NumberType),
+        th.Property("store_to_base_rate", th.NumberType),
+        th.Property("store_to_order_rate", th.NumberType),
+        th.Property("subtotal", th.NumberType),
+        th.Property("subtotal_incl_tax", th.NumberType),
+        th.Property("tax_amount", th.NumberType),
+        th.Property("total_qty", th.NumberType),
+        th.Property("transaction_id", th.StringType),
+        th.Property("updated_at", th.DateTimeType),
+        th.Property("items", th.CustomType({"type": ["array", "string"]})),
+        th.Property("comments", th.CustomType({"type": ["array", "string"]})),
+        th.Property("extension_attributes", th.CustomType({"type": ["object", "string"]})),
+    ).to_dict()
