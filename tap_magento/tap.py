@@ -37,7 +37,7 @@ class TapMagento(Tap):
 
     config_jsonschema = th.PropertiesList(
         th.Property(
-            "api_key",
+            "access_token",
             th.StringType,
             description="The token to authenticate against the API service",
         ),

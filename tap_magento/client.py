@@ -38,7 +38,7 @@ class MagentoStream(RESTStream):
         if self.config.get("username") and self.config.get("password") is not None:
             token = self.get_token()
         else:
-            token = self.config.get("api_key")
+            token = self.config.get("access_token")
         return BearerTokenAuthenticator.create_for_stream(self, token=token)
 
     def get_token(self):
