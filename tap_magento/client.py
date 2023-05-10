@@ -29,6 +29,12 @@ class MagentoStream(RESTStream):
         """Return the API URL root, configurable via tap settings."""
         store_url = self.config["store_url"]
         return f"{store_url}/rest/V1"
+    
+    @property
+    def page_size(self) -> str:
+        """Return the API URL root, configurable via tap settings."""
+        page_size = self.config.get("page_size") if self.config.get("page_size") != None else 300
+        return page_size
 
     records_jsonpath = "$.items[*]"
 
@@ -98,7 +104,7 @@ class MagentoStream(RESTStream):
                 current_page = json_data.get("search_criteria").get("current_page")
             else:
                 current_page = 1
-            if total_count > current_page * 300:
+            if total_count > current_page * self.page_size:
                 next_page_token = current_page + 1
         return next_page_token
 
@@ -107,7 +113,7 @@ class MagentoStream(RESTStream):
     ) -> Dict[str, Any]:
         """Return a dictionary of values to be used in URL parameterization."""
         params = {}
-        params["searchCriteria[pageSize]"] = 300
+        params["searchCriteria[pageSize]"] = self.page_size
         if not next_page_token:
             params["searchCriteria[currentPage]"] = 1
         else:
