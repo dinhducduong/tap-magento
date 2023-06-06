@@ -413,3 +413,29 @@ class InvoicesStream(MagentoStream):
         th.Property("comments", th.CustomType({"type": ["array", "string"]})),
         th.Property("extension_attributes", th.CustomType({"type": ["object", "string"]})),
     ).to_dict()
+
+
+
+
+class ProductsAttributeStream(MagentoStream):
+    name = "products_attribute"
+    path = "/products/attributes"
+    primary_keys = ["attribute_id"]
+    schema = th.PropertiesList(
+        th.Property("attribute_id", th.NumberType),
+        th.Property("attribute_code", th.StringType),
+        th.Property("frontend_input", th.StringType),
+        th.Property("entity_type_id", th.StringType),
+        th.Property("position", th.NumberType),
+        th.Property("is_required", th.BooleanType),
+        th.Property("default_frontend_label", th.StringType),
+        th.Property(
+            "apply_to",
+            th.ArrayType(th.CustomType({"type": ["null", "object"]})),
+        ),
+        th.Property(
+            "options",
+            th.ArrayType(th.CustomType({"type": ["null", "object"]})),
+        ),
+    ).to_dict()
+
