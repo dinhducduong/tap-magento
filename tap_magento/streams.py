@@ -368,13 +368,24 @@ class CategoryStream(MagentoStream):
         th.Property("position", th.NumberType),
         th.Property("level", th.NumberType),
         th.Property("children", th.StringType),
-        th.Property("created_at", th.DateTimeType),
-        th.Property("updated_at", th.DateTimeType),
+        th.Property("created_at", th.StringType),
+        th.Property("updated_at", th.StringType),
         th.Property("path", th.StringType),
         th.Property("include_in_menu", th.BooleanType),
         th.Property("available_sort_by", th.CustomType({"type": ["array", "string"]})),
         th.Property("custom_attributes", th.CustomType({"type": ["array", "object"]})),
+        th.Property("source", th.StringType),
     ).to_dict()
+    def parse_response(self, response: requests.Response) -> Iterable[dict]:
+        def preprocess_input(data):
+            data_convert = []
+            for item in data['items']:
+                item['source'] = "magento"
+                data_convert.append(item)
+            return data_convert
+        processed_data = response.json()
+        res = preprocess_input(processed_data)
+        yield from extract_jsonpath(self.records_jsonpath, input={"items": res})
 
 class SaleRulesStream(MagentoStream):
 
