@@ -318,7 +318,6 @@ class CategoryStream(MagentoStream):
     name = "categories"
     path = "/categories/list"
     primary_keys = ["id"]
-    records_jsonpath = "$.items[*]"
     replication_key = "updated_at"
     schema = th.PropertiesList(
         th.Property("id", th.NumberType),
@@ -357,7 +356,7 @@ class CategoryStream(MagentoStream):
             return data_convert
         processed_data = response.json()
         res = preprocess_input(processed_data)
-        yield from extract_jsonpath(self.records_jsonpath, input={"items": res})
+        yield from extract_jsonpath(self.records_jsonpath, input={"categories": res})
 
 class SaleRulesStream(MagentoStream):
 
