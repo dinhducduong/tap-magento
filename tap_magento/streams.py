@@ -340,7 +340,8 @@ class CategoryStream(MagentoStream):
     def parse_response(self, response: requests.Response) -> Iterable[dict]:
         def preprocess_input(data):
             data_convert = []
-            for item in json.loads(data):
+            for item in data:
+                print("itemitemitem")
                 raw_data = {
                     "id": item['id'],
                     "parent_id": item['parent_id'],
