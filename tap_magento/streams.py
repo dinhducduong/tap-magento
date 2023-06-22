@@ -236,7 +236,7 @@ class ProductsStream(MagentoStream):
     def parse_response(self, response: requests.Response) -> Iterable[dict]:
         def preprocess_input(data):
             data_convert = []
-            for item in data['products']:
+            for item in data:
                 raw_data = {
                     "id": item['id'],
                     "sku": item['sku'],
@@ -317,7 +317,7 @@ class CategoryStream(MagentoStream):
     name = "categories"
     path = "/categories/list"
     primary_keys = ["id"]
-    records_jsonpath: str = "$.items[*]"
+    records_jsonpath = "$.categories[*]"
     replication_key = "updated_at"
     schema = th.PropertiesList(
         th.Property("id", th.NumberType),
@@ -336,6 +336,33 @@ class CategoryStream(MagentoStream):
         th.Property("source", th.StringType),
     ).to_dict()
 
+    def parse_response(self, response: requests.Response) -> Iterable[dict]:
+        def preprocess_input(data):
+            data_convert = []
+            for item in data:
+                raw_data = {
+                    "id": item['id'],
+                    "parent_id": item['parent_id'],
+                    "name": item['name'],
+                    "is_active": item['is_active'],
+                    "position": item['position'],
+                    "level": item['level'],
+                    "children": item['children'],
+                    "created_at": item['created_at'],
+                    "updated_at": item['updated_at'],
+                    "path": item['path'],
+                    "include_in_menu": item['include_in_menu'],
+                    "available_sort_by": item['available_sort_by'],
+                    "custom_attributes": item['custom_attributes'],
+                    "source": "magento"
+                }
+                data_convert.append(raw_data)
+            return data_convert
+        processed_data = response.json()
+        res = preprocess_input(processed_data)
+        yield from extract_jsonpath(self.records_jsonpath, input={
+            "products_attribute": res
+        })
 
 class SaleRulesStream(MagentoStream):
 
@@ -480,7 +507,7 @@ class ProductsAttributeStream(MagentoStream):
     def parse_response(self, response: requests.Response) -> Iterable[dict]:
         def preprocess_input(data):
             data_convert = []
-            for item in data['products_attribute']:
+            for item in data:
                 raw_data = {
                     "attribute_id": item['attribute_id'],
                     "attribute_code": item['attribute_code'],
