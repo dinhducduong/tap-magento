@@ -337,6 +337,7 @@ class CategoryStream(MagentoStream):
     ).to_dict()
 
     def parse_response(self, response: requests.Response) -> Iterable[dict]:
+        print(response.json())
         def preprocess_input(data):
             data_convert = []
             for item in data:
@@ -361,7 +362,7 @@ class CategoryStream(MagentoStream):
         processed_data = response.json()
         res = preprocess_input(processed_data)
         yield from extract_jsonpath(self.records_jsonpath, input={
-            "products_attribute": res
+            "categories": res
         })
 
 class SaleRulesStream(MagentoStream):
