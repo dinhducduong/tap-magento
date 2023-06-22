@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Union, List, Iterable
 
 from singer_sdk import typing as th  # JSON Schema typing helpers
-
+from singer_sdk.helpers.jsonpath import extract_jsonpath
 from tap_magento.client import MagentoStream
 import requests
 
@@ -191,6 +191,7 @@ class ProductsStream(MagentoStream):
 
     name = "products"
     path = "/products"
+    records_jsonpath = "$.products[*]"
     primary_keys = ["id"]
     replication_key = "updated_at"
 
@@ -229,7 +230,41 @@ class ProductsStream(MagentoStream):
             "custom_attributes",
             th.ArrayType(th.CustomType({"type": ["null", "object"]})),
         ),
+        th.Property("source", th.StringType),
     ).to_dict()
+
+    def parse_response(self, response: requests.Response) -> Iterable[dict]:
+        def preprocess_input(data):
+            data_convert = []
+            for item in data['products']:
+                raw_data = {
+                    "id": item['id'],
+                    "sku": item['sku'],
+                    "name": item['name'],
+                    "attribute_set_id": item['attribute_set_id'],
+                    "price": item['price'],
+                    "status": item['status'],
+                    "visibility": item['visibility'],
+                    "type_id": item['type_id'],
+                    "created_at": item['created_at'],
+                    "updated_at": item['updated_at'],
+                    "weight": item['weight'],
+                    "extension_attributes": item['extension_attributes'],
+                    "product_links": item['product_links'],
+                    "options": item['options'],
+                    "media_gallery_entries": item['media_gallery_entries'],
+                    "tier_prices": item['tier_prices'],
+                    "custom_attributes": item['custom_attributes'],
+                    "source": "magento"
+                }
+                data_convert.append(raw_data)
+            return data_convert
+        processed_data = response.json()
+        res = preprocess_input(processed_data)
+        yield from extract_jsonpath(self.records_jsonpath, input={
+            "products": res
+        })
+
 
     def get_child_context(self, record: dict, context: Optional[dict]) -> dict:
         """Return a context dictionary for child streams."""
@@ -298,6 +333,7 @@ class CategoryStream(MagentoStream):
         th.Property("include_in_menu", th.BooleanType),
         th.Property("available_sort_by", th.CustomType({"type": ["array", "string"]})),
         th.Property("custom_attributes", th.CustomType({"type": ["array", "string"]})),
+        th.Property("source", th.StringType),
     ).to_dict()
 
 
@@ -420,6 +456,7 @@ class InvoicesStream(MagentoStream):
 class ProductsAttributeStream(MagentoStream):
     name = "products_attribute"
     path = "/products/attributes"
+    records_jsonpath = "$.products_attribute[*]"
     primary_keys = ["attribute_id"]
     schema = th.PropertiesList(
         th.Property("attribute_id", th.NumberType),
@@ -437,5 +474,29 @@ class ProductsAttributeStream(MagentoStream):
             "options",
             th.ArrayType(th.CustomType({"type": ["null", "object"]})),
         ),
+        th.Property("source", th.StringType),
     ).to_dict()
 
+    def parse_response(self, response: requests.Response) -> Iterable[dict]:
+        def preprocess_input(data):
+            data_convert = []
+            for item in data['products_attribute']:
+                raw_data = {
+                    "attribute_id": item['attribute_id'],
+                    "attribute_code": item['attribute_code'],
+                    "frontend_input": item['frontend_input'],
+                    "entity_type_id": item['entity_type_id'],
+                    "position": item['position'],
+                    "is_required": item['is_required'],
+                    "default_frontend_label": item['default_frontend_label'],
+                    "apply_to": item['apply_to'],
+                    "options": item['options'],
+                    "source": "magento"
+                }
+                data_convert.append(raw_data)
+            return data_convert
+        processed_data = response.json()
+        res = preprocess_input(processed_data)
+        yield from extract_jsonpath(self.records_jsonpath, input={
+            "products_attribute": res
+        })
