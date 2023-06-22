@@ -330,7 +330,6 @@ class CategoryStream(MagentoStream):
         th.Property("created_at", th.DateTimeType),
         th.Property("updated_at", th.DateTimeType),
         th.Property("path", th.StringType),
-        th.Property("available_sort_by", th.CustomType({"type": ["array", "string"]})),
         th.Property("custom_attributes", th.CustomType({"type": ["array", "string"]})),
         th.Property("source", th.StringType),
     ).to_dict()
