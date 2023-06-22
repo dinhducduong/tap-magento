@@ -317,7 +317,7 @@ class CategoryStream(MagentoStream):
     name = "categories"
     path = "/categories/list"
     primary_keys = ["id"]
-    records_jsonpath = "$.categories[*]"
+    # records_jsonpath = "$.categories[*]"
     replication_key = "updated_at"
     schema = th.PropertiesList(
         th.Property("id", th.NumberType),
@@ -333,37 +333,37 @@ class CategoryStream(MagentoStream):
         th.Property("include_in_menu", th.BooleanType),
         th.Property("available_sort_by", th.CustomType({"type": ["array", "string"]})),
         th.Property("custom_attributes", th.CustomType({"type": ["array", "string"]})),
-        th.Property("source", th.StringType),
+        th.Property("source", "magento"),
     ).to_dict()
 
-    def parse_response(self, response: requests.Response) -> Iterable[dict]:
-        print(response.json())
-        def preprocess_input(data):
-            data_convert = []
-            for item in data:
-                raw_data = {
-                    "id": item['id'],
-                    "parent_id": item['parent_id'],
-                    "name": item['name'],
-                    "is_active": item['is_active'],
-                    "position": item['position'],
-                    "level": item['level'],
-                    "children": item['children'],
-                    "created_at": item['created_at'],
-                    "updated_at": item['updated_at'],
-                    "path": item['path'],
-                    "include_in_menu": item['include_in_menu'],
-                    "available_sort_by": item['available_sort_by'],
-                    "custom_attributes": item['custom_attributes'],
-                    "source": "magento"
-                }
-                data_convert.append(raw_data)
-            return data_convert
-        processed_data = response.json()
-        res = preprocess_input(processed_data)
-        yield from extract_jsonpath(self.records_jsonpath, input={
-            "categories": res
-        })
+    # def parse_response(self, response: requests.Response) -> Iterable[dict]:
+    #     print(response.json())
+    #     def preprocess_input(data):
+    #         data_convert = []
+    #         for item in data:
+    #             raw_data = {
+    #                 "id": item['id'],
+    #                 "parent_id": item['parent_id'],
+    #                 "name": item['name'],
+    #                 "is_active": item['is_active'],
+    #                 "position": item['position'],
+    #                 "level": item['level'],
+    #                 "children": item['children'],
+    #                 "created_at": item['created_at'],
+    #                 "updated_at": item['updated_at'],
+    #                 "path": item['path'],
+    #                 "include_in_menu": item['include_in_menu'],
+    #                 "available_sort_by": item['available_sort_by'],
+    #                 "custom_attributes": item['custom_attributes'],
+    #                 "source": "magento"
+    #             }
+    #             data_convert.append(raw_data)
+    #         return data_convert
+    #     processed_data = response.json()
+    #     res = preprocess_input(processed_data)
+    #     yield from extract_jsonpath(self.records_jsonpath, input={
+    #         "categories": res
+    #     })
 
 class SaleRulesStream(MagentoStream):
 
