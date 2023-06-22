@@ -323,7 +323,6 @@ class CategoryStream(MagentoStream):
         th.Property("id", th.NumberType),
         th.Property("parent_id", th.NumberType),
         th.Property("name", th.StringType),
-        th.Property("is_active", th.BooleanType),
         th.Property("position", th.NumberType),
         th.Property("level", th.NumberType),
         th.Property("children", th.StringType),
@@ -341,12 +340,10 @@ class CategoryStream(MagentoStream):
         def preprocess_input(data):
             data_convert = []
             for item in data['items']:
-                print("itemitemitem")
                 raw_data = {
                     "id": item['id'],
                     "parent_id": item['parent_id'],
                     "name": item['name'],
-                    "is_active": item['is_active'],
                     "position": item['position'],
                     "level": item['level'],
                     "children": item['children'],
