@@ -359,7 +359,6 @@ class CategoryStream(MagentoStream):
     path = "/categories/list"
     primary_keys = ["id"]
     records_jsonpath: str = "$.items[*]"
-    replication_key = "updated_at"
     schema = th.PropertiesList(
         th.Property("id", th.NumberType),
         th.Property("parent_id", th.NumberType),
