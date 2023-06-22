@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Union, List, Iterable
 
 from singer_sdk import typing as th  # JSON Schema typing helpers
-
 from tap_magento.client import MagentoStream
 import requests
 
@@ -284,7 +283,7 @@ class ProductsStream(MagentoStream):
             "custom_attributes",
             th.ArrayType(th.CustomType({"type": ["null", "object"]})),
         ),
-        th.Property("source", th.StringType, default="magento"),
+        th.Property("source", th.StringType(default="John Doe")),
     ).to_dict()
 
     def get_child_context(self, record: dict, context: Optional[dict]) -> dict:
