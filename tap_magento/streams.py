@@ -283,7 +283,7 @@ class ProductsStream(MagentoStream):
             "custom_attributes",
             th.ArrayType(th.CustomType({"type": ["null", "object"]})),
         ),
-        th.Property("source", th.StringType(default="John Doe")),
+        th.Property("source", th.StringType, default="magento"),
     ).to_dict()
 
     def get_child_context(self, record: dict, context: Optional[dict]) -> dict:
