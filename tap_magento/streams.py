@@ -192,7 +192,7 @@ class ProductsStream(MagentoStream):
 
     name = "products"
     path = "/products"
-    records_jsonpath = "$.products[*]"
+    records_jsonpath = "$.items[*]"
     primary_keys = ["id"]
     replication_key = "updated_at"
 
@@ -237,7 +237,7 @@ class ProductsStream(MagentoStream):
     def parse_response(self, response: requests.Response) -> Iterable[dict]:
         def preprocess_input(data):
             data_convert = []
-            for item in data:
+            for item in data['items']:
                 raw_data = {
                     "id": item['id'],
                     "sku": item['sku'],
@@ -263,7 +263,7 @@ class ProductsStream(MagentoStream):
         processed_data = response.json()
         res = preprocess_input(processed_data)
         yield from extract_jsonpath(self.records_jsonpath, input={
-            "products": res
+            "items": res
         })
 
 
@@ -318,7 +318,7 @@ class CategoryStream(MagentoStream):
     name = "categories"
     path = "/categories/list"
     primary_keys = ["id"]
-    records_jsonpath: str = "$.items[*]"
+    records_jsonpath = "$.items[*]"
     replication_key = "updated_at"
     schema = th.PropertiesList(
         th.Property("id", th.NumberType),
