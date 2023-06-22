@@ -318,7 +318,6 @@ class CategoryStream(MagentoStream):
     name = "categories"
     path = "/categories/list"
     primary_keys = ["id"]
-    records_jsonpath = "$.items[*]"
     replication_key = "updated_at"
     schema = th.PropertiesList(
         th.Property("id", th.NumberType),
@@ -338,9 +337,10 @@ class CategoryStream(MagentoStream):
     ).to_dict()
 
     def parse_response(self, response: requests.Response) -> Iterable[dict]:
+        print("response.json()",response.json())
         def preprocess_input(data):
             data_convert = []
-            for item in data:
+            for item in data['items']:
                 print("itemitemitem")
                 raw_data = {
                     "id": item['id'],
