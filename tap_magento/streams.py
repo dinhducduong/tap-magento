@@ -356,7 +356,7 @@ class CategoryStream(MagentoStream):
             return data_convert
         processed_data = response.json()
         res = preprocess_input(processed_data)
-        yield from extract_jsonpath(self.records_jsonpath, input=res)
+        yield from extract_jsonpath(self.records_jsonpath, input={"items": res})
 
 class SaleRulesStream(MagentoStream):
 
