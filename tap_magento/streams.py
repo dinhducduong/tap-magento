@@ -238,8 +238,18 @@ class ProductsAttributeStream(MagentoStream):
             "validation_rules",
             th.ArrayType(th.CustomType({"type": ["null", "object"]})),
         ),
+        th.Property("source", th.StringType),
     ).to_dict()
-
+    def parse_response(self, response: requests.Response) -> Iterable[dict]:
+        def preprocess_input(data):
+            data_convert = []
+            for item in data['items']:
+                item['source'] = "magento"
+                data_convert.append(item)
+            return data_convert
+        processed_data = response.json()
+        res = preprocess_input(processed_data)
+        yield from extract_jsonpath(self.records_jsonpath, input={"items": res})
 
 class ProductsStream(MagentoStream):
 
@@ -283,7 +293,7 @@ class ProductsStream(MagentoStream):
             "custom_attributes",
             th.ArrayType(th.CustomType({"type": ["null", "object"]})),
         ),
-        th.Property("source", th.StringType, default="magento"),
+        th.Property("source", th.StringType),
     ).to_dict()
 
     def parse_response(self, response: requests.Response) -> Iterable[dict]:
@@ -363,8 +373,18 @@ class CategoryStream(MagentoStream):
         th.Property("include_in_menu", th.BooleanType),
         th.Property("available_sort_by", th.CustomType({"type": ["array", "string"]})),
         th.Property("custom_attributes", th.CustomType({"type": ["array", "object"]})),
+        th.Property("source", th.StringType),
     ).to_dict()
-
+    def parse_response(self, response: requests.Response) -> Iterable[dict]:
+        def preprocess_input(data):
+            data_convert = []
+            for item in data['items']:
+                item['source'] = "magento"
+                data_convert.append(item)
+            return data_convert
+        processed_data = response.json()
+        res = preprocess_input(processed_data)
+        yield from extract_jsonpath(self.records_jsonpath, input={"items": res})
 
 class SaleRulesStream(MagentoStream):
 
