@@ -1,11 +1,10 @@
 """Stream type classes for tap-magento."""
 
-import json
 from pathlib import Path
 from typing import Any, Dict, Optional, Union, List, Iterable
 
 from singer_sdk import typing as th  # JSON Schema typing helpers
-from singer_sdk.helpers.jsonpath import extract_jsonpath
+
 from tap_magento.client import MagentoStream
 import requests
 
@@ -188,11 +187,65 @@ class OrdersStream(MagentoStream):
     ).to_dict()
 
 
+class ProductsAttributeStream(MagentoStream):
+    name = "products_attribute"
+    path = "/products/attributes"
+    primary_keys = ["attribute_id"]
+    schema = th.PropertiesList(
+        th.Property("is_wysiwyg_enabled", th.BooleanType),
+        th.Property("is_html_allowed_on_front", th.BooleanType),
+        th.Property("used_for_sort_by", th.BooleanType),
+        th.Property("is_filterable", th.BooleanType),
+        th.Property("is_filterable_in_search", th.BooleanType),
+        th.Property("is_used_in_grid", th.BooleanType),
+        th.Property("is_visible_in_grid", th.BooleanType),
+        th.Property("is_filterable_in_grid", th.BooleanType),
+        th.Property("position", th.NumberType),
+        th.Property(
+            "apply_to",
+            th.ArrayType(th.CustomType({"type": ["null", "string"]})),
+        ),
+        th.Property("is_searchable", th.StringType),
+        th.Property("is_visible_in_advanced_search", th.StringType),
+        th.Property("is_comparable", th.StringType),
+        th.Property("is_used_for_promo_rules", th.StringType),
+        th.Property("is_visible_on_front", th.StringType),
+        th.Property("used_in_product_listing", th.StringType),
+        th.Property("is_visible", th.BooleanType),
+        th.Property("scope", th.StringType),
+        th.Property("attribute_id", th.NumberType),
+        th.Property("attribute_code", th.StringType),
+        th.Property("frontend_input", th.StringType),
+        th.Property("entity_type_id", th.StringType),
+        th.Property("is_required", th.BooleanType),
+        th.Property(
+            "options",
+            th.ArrayType(th.CustomType({"type": ["null", "object"]})),
+        ),
+        th.Property("is_user_defined", th.BooleanType),
+        th.Property("default_frontend_label", th.StringType),
+        th.Property(
+            "frontend_labels",
+            th.ArrayType(th.CustomType({"type": ["null", "object"]})),
+        ),
+        th.Property("note", th.StringType),
+        th.Property("backend_type", th.StringType),
+        th.Property("backend_model", th.StringType),
+        th.Property("source_model", th.StringType),
+        th.Property("default_value", th.StringType),
+        th.Property("is_unique", th.StringType),
+        th.Property("frontend_class", th.StringType),
+        th.Property(
+            "validation_rules",
+            th.ArrayType(th.CustomType({"type": ["null", "object"]})),
+        ),
+    ).to_dict()
+
+
 class ProductsStream(MagentoStream):
 
     name = "products"
     path = "/products"
-    records_jsonpath = "$.items[*]"
     primary_keys = ["id"]
     replication_key = "updated_at"
 
@@ -231,41 +284,8 @@ class ProductsStream(MagentoStream):
             "custom_attributes",
             th.ArrayType(th.CustomType({"type": ["null", "object"]})),
         ),
-        th.Property("source", th.StringType),
+        th.Property("source", th.StringType, default="magento"),
     ).to_dict()
-
-    def parse_response(self, response: requests.Response) -> Iterable[dict]:
-        def preprocess_input(data):
-            data_convert = []
-            for item in data['items']:
-                raw_data = {
-                    "id": item['id'],
-                    "sku": item['sku'],
-                    "name": item['name'],
-                    "attribute_set_id": item['attribute_set_id'],
-                    "price": item['price'],
-                    "status": item['status'],
-                    "visibility": item['visibility'],
-                    "type_id": item['type_id'],
-                    "created_at": item['created_at'],
-                    "updated_at": item['updated_at'],
-                    "weight": item['weight'],
-                    "extension_attributes": item['extension_attributes'],
-                    "product_links": item['product_links'],
-                    "options": item['options'],
-                    "media_gallery_entries": item['media_gallery_entries'],
-                    "tier_prices": item['tier_prices'],
-                    "custom_attributes": item['custom_attributes'],
-                    "source": "magento"
-                }
-                data_convert.append(raw_data)
-            return data_convert
-        processed_data = response.json()
-        res = preprocess_input(processed_data)
-        yield from extract_jsonpath(self.records_jsonpath, input={
-            "items": res
-        })
-
 
     def get_child_context(self, record: dict, context: Optional[dict]) -> dict:
         """Return a context dictionary for child streams."""
@@ -318,43 +338,24 @@ class CategoryStream(MagentoStream):
     name = "categories"
     path = "/categories/list"
     primary_keys = ["id"]
-    records_jsonpath = "$.items[*]"
+    records_jsonpath: str = "$.items[*]"
     replication_key = "updated_at"
     schema = th.PropertiesList(
         th.Property("id", th.NumberType),
         th.Property("parent_id", th.NumberType),
         th.Property("name", th.StringType),
+        th.Property("is_active", th.BooleanType),
         th.Property("position", th.NumberType),
         th.Property("level", th.NumberType),
+        th.Property("children", th.StringType),
         th.Property("created_at", th.DateTimeType),
         th.Property("updated_at", th.DateTimeType),
         th.Property("path", th.StringType),
-        th.Property("custom_attributes", th.CustomType({"type": ["array", "string"]})),
-        th.Property("source", th.StringType),
+        th.Property("include_in_menu", th.BooleanType),
+        th.Property("available_sort_by", th.CustomType({"type": ["array", "string"]})),
+        th.Property("custom_attributes", th.CustomType({"type": ["array", "object"]})),
     ).to_dict()
 
-    def parse_response(self, response: requests.Response) -> Iterable[dict]:
-        def preprocess_input(data):
-            data_convert = []
-            for item in data['items']:
-                raw_data = {
-                    "id": item['id'],
-                    "parent_id": item['parent_id'],
-                    "name": item['name'],
-                    "position": item['position'],
-                    "level": item['level'],
-                    "created_at": item['created_at'],
-                    "updated_at": item['updated_at'],
-                    "path": item['path'],
-                    "custom_attributes": item['custom_attributes'],
-                    "source": "magento"
-                }
-                data_convert.append(raw_data)
-            return data_convert
-        processed_data = response.json()
-        res = preprocess_input(processed_data)
-        print("ressss", res)
-        yield from extract_jsonpath(self.records_jsonpath, input={"items": res})
 
 class SaleRulesStream(MagentoStream):
 
@@ -466,56 +467,6 @@ class InvoicesStream(MagentoStream):
         th.Property("updated_at", th.DateTimeType),
         th.Property("items", th.CustomType({"type": ["array", "string"]})),
         th.Property("comments", th.CustomType({"type": ["array", "string"]})),
-        th.Property("extension_attributes", th.CustomType({"type": ["object", "string"]})),
+        th.Property("extension_attributes", th.CustomType(
+            {"type": ["object", "string"]})),
     ).to_dict()
-
-
-
-
-class ProductsAttributeStream(MagentoStream):
-    name = "products_attribute"
-    path = "/products/attributes"
-    records_jsonpath = "$.products_attribute[*]"
-    primary_keys = ["attribute_id"]
-    schema = th.PropertiesList(
-        th.Property("attribute_id", th.NumberType),
-        th.Property("attribute_code", th.StringType),
-        th.Property("frontend_input", th.StringType),
-        th.Property("entity_type_id", th.StringType),
-        th.Property("position", th.NumberType),
-        th.Property("is_required", th.BooleanType),
-        th.Property("default_frontend_label", th.StringType),
-        th.Property(
-            "apply_to",
-            th.ArrayType(th.CustomType({"type": ["null", "object"]})),
-        ),
-        th.Property(
-            "options",
-            th.ArrayType(th.CustomType({"type": ["null", "object"]})),
-        ),
-        th.Property("source", th.StringType),
-    ).to_dict()
-
-    def parse_response(self, response: requests.Response) -> Iterable[dict]:
-        def preprocess_input(data):
-            data_convert = []
-            for item in data:
-                raw_data = {
-                    "attribute_id": item['attribute_id'],
-                    "attribute_code": item['attribute_code'],
-                    "frontend_input": item['frontend_input'],
-                    "entity_type_id": item['entity_type_id'],
-                    "position": item['position'],
-                    "is_required": item['is_required'],
-                    "default_frontend_label": item['default_frontend_label'],
-                    "apply_to": item['apply_to'],
-                    "options": item['options'],
-                    "source": "magento"
-                }
-                data_convert.append(raw_data)
-            return data_convert
-        processed_data = response.json()
-        res = preprocess_input(processed_data)
-        yield from extract_jsonpath(self.records_jsonpath, input={
-            "products_attribute": res
-        })
