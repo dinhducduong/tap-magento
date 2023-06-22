@@ -326,7 +326,6 @@ class CategoryStream(MagentoStream):
         th.Property("name", th.StringType),
         th.Property("position", th.NumberType),
         th.Property("level", th.NumberType),
-        th.Property("children", th.StringType),
         th.Property("created_at", th.DateTimeType),
         th.Property("updated_at", th.DateTimeType),
         th.Property("path", th.StringType),
@@ -344,7 +343,6 @@ class CategoryStream(MagentoStream):
                     "name": item['name'],
                     "position": item['position'],
                     "level": item['level'],
-                    "children": item['children'],
                     "created_at": item['created_at'],
                     "updated_at": item['updated_at'],
                     "path": item['path'],
@@ -356,7 +354,7 @@ class CategoryStream(MagentoStream):
         processed_data = response.json()
         res = preprocess_input(processed_data)
         print("ressss", res)
-        yield from extract_jsonpath(self.records_jsonpath, input=res)
+        yield from extract_jsonpath(self.records_jsonpath, input={"items": res})
 
 class SaleRulesStream(MagentoStream):
 
