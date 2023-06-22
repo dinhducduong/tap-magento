@@ -2,7 +2,7 @@
 
 from pathlib import Path
 from typing import Any, Dict, Optional, Union, List, Iterable
-
+from singer_sdk.helpers.jsonpath import extract_jsonpath
 from singer_sdk import typing as th  # JSON Schema typing helpers
 from tap_magento.client import MagentoStream
 import requests
@@ -286,6 +286,16 @@ class ProductsStream(MagentoStream):
         th.Property("source", th.StringType, default="magento"),
     ).to_dict()
 
+    def parse_response(self, response: requests.Response) -> Iterable[dict]:
+        def preprocess_input(data):
+            data_convert = []
+            for item in data['items']:
+                item['source'] = "magento"
+                data_convert.append(item)
+            return data_convert
+        processed_data = response.json()
+        res = preprocess_input(processed_data)
+        yield from extract_jsonpath(self.records_jsonpath, input={"items": res})
     def get_child_context(self, record: dict, context: Optional[dict]) -> dict:
         """Return a context dictionary for child streams."""
         return {
