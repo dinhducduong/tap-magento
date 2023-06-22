@@ -362,10 +362,7 @@ class CategoryStream(MagentoStream):
     replication_key = "updated_at"
     schema = th.PropertiesList(
         th.Property("id", th.NumberType),
-        th.Property("parent_id", th.NumberType),
         th.Property("name", th.StringType),
-        th.Property("position", th.NumberType),
-        th.Property("level", th.NumberType),
         th.Property("created_at", th.StringType),
         th.Property("updated_at", th.StringType),
         th.Property("path", th.StringType),
