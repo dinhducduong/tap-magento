@@ -349,7 +349,6 @@ class CategoryStream(MagentoStream):
                     "created_at": item['created_at'],
                     "updated_at": item['updated_at'],
                     "path": item['path'],
-                    "available_sort_by": item['available_sort_by'],
                     "custom_attributes": item['custom_attributes'],
                     "source": "magento"
                 }
